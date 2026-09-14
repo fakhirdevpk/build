@@ -1,0 +1,207 @@
+// ============================================================
+// BASE.SCSS — Professional SCSS Foundation
+// Every major SCSS feature demonstrated & labeled below.
+// ============================================================
+
+@use 'sass:math';  // required for math.div()
+@use 'sass:map';   // required for map.get() / map.has-key()
+@use 'sass:color'; // required for color.channel()
+
+
+// ------------------------------------------------------------
+// 1. MODERN MODULES (@use instead of legacy @import)
+// ------------------------------------------------------------
+// @use loads other partials with namespacing, avoids global
+// scope pollution. Example (uncomment when you have partials):
+// @use 'colors';
+// @use 'mixins' as m;
+
+
+// ------------------------------------------------------------
+// 2. VARIABLES — single source of truth for values
+// ------------------------------------------------------------
+$color-primary:   oklch(60% 0.15 250);
+$color-secondary: oklch(70% 0.10 200);
+$color-bg:        oklch(98% 0.01 90);
+$color-text:      oklch(20% 0.02 90);
+
+$font-base:   'Inter', sans-serif;
+$font-size-base: 16px;
+
+$spacing-unit: 8px;          // base unit — multiply for spacing scale
+$radius-base:  8px;
+
+$breakpoint-sm: 480px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 1024px;
+
+
+// ------------------------------------------------------------
+// 3. MAPS — structured key-value data, looped over later
+// ------------------------------------------------------------
+$spacing: (
+  'xs': $spacing-unit,
+  'sm': $spacing-unit * 2,
+  'md': $spacing-unit * 3,
+  'lg': $spacing-unit * 5,
+  'xl': $spacing-unit * 8,
+);
+
+$colors: (
+  'primary':   $color-primary,
+  'secondary': $color-secondary,
+  'text':      $color-text,
+);
+
+
+// ------------------------------------------------------------
+// 4. FUNCTIONS — reusable logic that RETURNS a value
+// ------------------------------------------------------------
+@function spacing($key) {
+  @if map.has-key($spacing, $key) {
+    @return map.get($spacing, $key);
+  }
+  @warn "Unknown spacing key: #{$key}";
+  @return null;
+}
+
+@function rem($px, $base: $font-size-base) {
+  @return math.div($px, $base) * 1rem;
+}
+
+
+// ------------------------------------------------------------
+// 5. MIXINS — reusable style BLOCKS, can take parameters
+// ------------------------------------------------------------
+@mixin flex($direction: row, $justify: flex-start, $align: stretch, $gap: 0) {
+  display: flex;
+  flex-direction: $direction;
+  justify-content: $justify;
+  align-items: $align;
+  gap: $gap;
+}
+
+@mixin respond($breakpoint) {
+  @if $breakpoint == 'sm' {
+    @media (min-width: $breakpoint-sm) { @content; }
+  } @else if $breakpoint == 'md' {
+    @media (min-width: $breakpoint-md) { @content; }
+  } @else if $breakpoint == 'lg' {
+    @media (min-width: $breakpoint-lg) { @content; }
+  }
+}
+
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+// ------------------------------------------------------------
+// 6. PLACEHOLDER SELECTORS + @extend — share styles,
+//    no duplicate output (unlike mixins, which DO duplicate)
+// ------------------------------------------------------------
+%card-base {
+  background: $color-bg;
+  border-radius: $radius-base;
+  padding: spacing('md');
+}
+
+.card {
+  @extend %card-base;
+}
+
+.card--highlighted {
+  @extend %card-base;
+  border: 1px solid $color-primary;
+}
+
+
+// ------------------------------------------------------------
+// 7. LOOPS — @each over a map/list, generates repetitive CSS
+// ------------------------------------------------------------
+@each $name, $value in $spacing {
+  .p-#{$name} { padding: $value; }
+  .m-#{$name} { margin: $value; }
+}
+
+@each $name, $color in $colors {
+  .text-#{$name} { color: $color; }
+  .bg-#{$name}   { background-color: $color; }
+}
+
+// @for — numeric loop
+@for $i from 1 through 5 {
+  .flex-#{$i} { flex: $i; }
+}
+
+
+// ------------------------------------------------------------
+// 8. NESTING — including parent selector (&) for states/BEM
+// ------------------------------------------------------------
+.btn {
+  @include flex(row, center, center);
+  padding: spacing('sm') spacing('md');
+  border-radius: $radius-base;
+  font-family: $font-base;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &--primary {
+    background: $color-primary;
+    color: white;
+  }
+
+  &--secondary {
+    background: $color-secondary;
+    color: white;
+  }
+
+  // nested descendant selector
+  .icon {
+    margin-right: spacing('xs');
+  }
+}
+
+
+// ------------------------------------------------------------
+// 9. CONDITIONALS — @if / @else inside a mixin or ruleset
+// ------------------------------------------------------------
+@mixin button-variant($bg, $text: white) {
+  background: $bg;
+  color: $text;
+
+  @if color.channel($bg, "lightness", $space: hsl) > 70% {
+    color: $color-text; // auto-flip text color on light backgrounds
+  }
+}
+
+
+// ------------------------------------------------------------
+// 10. MEDIA QUERIES via mixin (responsive, DRY)
+// ------------------------------------------------------------
+.hero {
+  padding: spacing('lg');
+
+  @include respond('md') {
+    padding: spacing('xl');
+  }
+}
+
+
+// ------------------------------------------------------------
+// 11. INTERPOLATION — inject variables into selectors/properties
+// ------------------------------------------------------------
+$side: 'left';
+.align-#{$side} {
+  text-align: #{$side};
+}

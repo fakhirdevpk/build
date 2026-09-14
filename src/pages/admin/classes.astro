@@ -1,0 +1,19 @@
+---
+import Layout from '../../layouts/landing-page.astro';
+import { getClasses } from '../../services/classes';
+
+const { data: classes } = await getClasses(Astro.locals.supabase);
+---
+<Layout title="Manage Classes">
+  <h1>Classes</h1>
+  <ul>
+    {classes?.map(c => (
+      <li>{c.title} — {c.starts_at}
+        <form method="POST" action={`/api/classes/${c.id}/delete`}>
+          <button type="submit">Delete</button>
+        </form>
+      </li>
+    ))}
+  </ul>
+  <form method="POST" action="/api/classes/create"><!-- create form --></form>
+</Layout>
