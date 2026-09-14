@@ -1,0 +1,24 @@
+---
+// Button.astro
+interface Props {
+  label: string;
+  variant?: 'primary' | 'secondary' | 'outline';
+  size?: 'sm' | 'md' | 'lg';
+}
+
+const { label, variant = 'primary', size = 'md' } = Astro.props;
+---
+
+<button class={`btn btn-${variant} btn-${size}`}>
+  {label}
+}
+</button>
+
+<style>
+  .btn-primary { background: oklch(45.203% 0.3133 264.073); color: white; }
+  .btn-secondary { background: gray; color: white; }
+  .btn-outline { background: transparent; border: 1px solid blue; }
+  .btn-sm { padding: 4px 8px; }
+  .btn-md { padding: 8px 16px; }
+  .btn-lg { padding: 12px 24px; }
+</style>
